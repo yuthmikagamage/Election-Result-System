@@ -9,10 +9,12 @@ function App() {
     }
     socket.current = new WebSocket("ws://localhost:3002");
     socket.current.onopen = () => {
-      socket.current.send(
-        JSON.stringify({ type: "connection", name: "Client-User" })
-      );
+      socket.current.send(JSON.stringify({ type: "EndUser-Connection" }));
     };
+    socket.current.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+    });
   }, []);
   return (
     <>
