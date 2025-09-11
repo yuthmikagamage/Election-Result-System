@@ -33,8 +33,8 @@ function App() {
   }
 
   return (
-    <>
-      <p>Admin User</p>
+    <div className="admin">
+      <h1>Presidential Election Results - Admin</h1>
       <div className="userinput">
         <input
           type="file"
@@ -46,7 +46,7 @@ function App() {
         </button>
       </div>
       {newFile && console.log(newFile)}
-    </>
+    </div>
   );
 }
 
