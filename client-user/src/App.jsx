@@ -43,24 +43,21 @@ function App() {
       {!resultsAvailable && (
         <div className="noResults">No Results Available !</div>
       )}
-      {resultsAvailable && (
-        <div className="wrapper">
-          {!seeDetails && (
-            <div className="withoutDetails">
-              <h1>Presidential Election Results</h1>
 
+      {resultsAvailable && (
+        <div>
+          {!seeDetails && (
+            <div>
+              <h1>Presidential Election Results</h1>
               <div className="items">
                 {everyResult.map((result, key) => (
-                  <div key={key}>
-                    (
-                    <button
-                      className="resultButton"
-                      onClick={() => selectItem(key)}
-                    >
-                      {result.ed_name + " - " + result.pd_name}
-                    </button>
-                    )
-                  </div>
+                  <button
+                    key={key}
+                    className="resultButton"
+                    onClick={() => selectItem(key)}
+                  >
+                    {result.ed_name} - {result.pd_name}
+                  </button>
                 ))}
               </div>
             </div>
@@ -75,18 +72,59 @@ function App() {
                 >
                   X
                 </button>
+
                 <h2>
-                  {everyResult[currentSelected].ed_name +
-                    " - " +
-                    everyResult[currentSelected].pd_name}
+                  {everyResult[currentSelected].ed_name} -{" "}
+                  {everyResult[currentSelected].pd_name}
                 </h2>
-                {[...everyResult[currentSelected].by_party]
-                  .sort((a, b) => b.votes - a.votes)
-                  .map((party, key) => (
-                    <div className="candidateVote" key={key}>
-                      {party.candidate + " - " + party.votes}
+
+                <div className="summarySection">
+                  <div className="summaryStats">
+                    <div className="stat">
+                      <span className="label">Total Electors:</span>
+                      <span className="value">
+                        {everyResult[currentSelected].summary.electors}
+                      </span>
                     </div>
-                  ))}
+                    <div className="stat">
+                      <span className="label">Polled:</span>
+                      <span className="value">
+                        {everyResult[currentSelected].summary.polled}
+                      </span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Valid:</span>
+                      <span className="value">
+                        {everyResult[currentSelected].summary.valid}
+                      </span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Rejected:</span>
+                      <span className="value">
+                        {everyResult[currentSelected].summary.rejected}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="candidatesSection">
+                  <h3>Results by Candidate</h3>
+                  <div className="candidatesList">
+                    {[...everyResult[currentSelected].by_party]
+                      .sort((a, b) => b.votes - a.votes)
+                      .map((party, key) => (
+                        <div key={key} className="candidateItem">
+                          <div className="candidateName">{party.candidate}</div>
+                          <div className="candidateParty">
+                            {party.party_name}
+                          </div>
+                          <div className="candidateVotes">
+                            {party.votes} votes ({party.percentage}%)
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
