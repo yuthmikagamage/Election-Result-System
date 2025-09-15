@@ -10,6 +10,7 @@ function App() {
   const [districtSummaryData, setDistrictSummaryData] = useState([]);
   const [showResultofDistrict, setShowResultofDistrict] = useState(false);
   const currentDistrict = useRef(null);
+  const selectedDistrictItem = useRef(null);
 
   useEffect(() => {
     if (socket.current) {
@@ -51,6 +52,60 @@ function App() {
     setViewSummery(true);
   }
 
+  function detailedResult(result) {
+    return (
+      <div className="detailsPopUp">
+        <div className="container">
+          <button className="closeButton" onClick={() => setSeeDetails(false)}>
+            X
+          </button>
+
+          <h2>
+            {result.ed_name} - {result.pd_name}
+          </h2>
+
+          <div className="summarySection">
+            <div className="summaryStats">
+              <div className="stat">
+                <span className="label">Total Electors:</span>
+                <span className="value">{result.summary.electors}</span>
+              </div>
+              <div className="stat">
+                <span className="label">Polled:</span>
+                <span className="value">{result.summary.polled}</span>
+              </div>
+              <div className="stat">
+                <span className="label">Valid:</span>
+                <span className="value">{result.summary.valid}</span>
+              </div>
+              <div className="stat">
+                <span className="label">Rejected:</span>
+                <span className="value">{result.summary.rejected}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="candidatesSection">
+            <h3>Results by Candidate</h3>
+            <div className="candidatesList">
+              {result.by_party
+                .sort((a, b) => b.votes - a.votes)
+                .map((party, key) => (
+                  <div key={key} className="candidateItem">
+                    <div className="candidateName">{party.candidate}</div>
+                    <div className="candidateParty">{party.party_name}</div>
+                    <div className="candidateVotes">
+                      {party.votes} votes ({party.percentage})
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="client">
       {viewSummery && (
@@ -88,13 +143,23 @@ function App() {
                 >
                   ⬅
                 </button>
-                <div className="resultByDistrictButtons">
-                  {currentDistrict.current.map((item, index) => (
-                    <button key={index} className="pdButton">
-                      {item.ed_name} - {item.pd_name}
-                    </button>
-                  ))}
-                </div>
+                {!seeDetails && (
+                  <div className="resultByDistrictButtons">
+                    {currentDistrict.current.map((item, index) => (
+                      <button
+                        key={index}
+                        className="pdButton"
+                        onClick={() => {
+                          setSeeDetails(true);
+                          selectedDistrictItem.current = item;
+                        }}
+                      >
+                        {item.ed_name} - {item.pd_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {seeDetails && detailedResult(selectedDistrictItem.current)}
               </div>
             )}
           </div>
@@ -138,73 +203,7 @@ function App() {
                 </div>
               )}
 
-              {seeDetails && (
-                <div className="detailsPopUp">
-                  <div className="container">
-                    <button
-                      className="closeButton"
-                      onClick={() => setSeeDetails(false)}
-                    >
-                      X
-                    </button>
-
-                    <h2>
-                      {everyResult[currentSelected].ed_name} -{" "}
-                      {everyResult[currentSelected].pd_name}
-                    </h2>
-
-                    <div className="summarySection">
-                      <div className="summaryStats">
-                        <div className="stat">
-                          <span className="label">Total Electors:</span>
-                          <span className="value">
-                            {everyResult[currentSelected].summary.electors}
-                          </span>
-                        </div>
-                        <div className="stat">
-                          <span className="label">Polled:</span>
-                          <span className="value">
-                            {everyResult[currentSelected].summary.polled}
-                          </span>
-                        </div>
-                        <div className="stat">
-                          <span className="label">Valid:</span>
-                          <span className="value">
-                            {everyResult[currentSelected].summary.valid}
-                          </span>
-                        </div>
-                        <div className="stat">
-                          <span className="label">Rejected:</span>
-                          <span className="value">
-                            {everyResult[currentSelected].summary.rejected}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="candidatesSection">
-                      <h3>Results by Candidate</h3>
-                      <div className="candidatesList">
-                        {[...everyResult[currentSelected].by_party]
-                          .sort((a, b) => b.votes - a.votes)
-                          .map((party, key) => (
-                            <div key={key} className="candidateItem">
-                              <div className="candidateName">
-                                {party.candidate}
-                              </div>
-                              <div className="candidateParty">
-                                {party.party_name}
-                              </div>
-                              <div className="candidateVotes">
-                                {party.votes} votes ({party.percentage}%)
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {seeDetails && detailedResult(everyResult[currentSelected])}
             </div>
           )}
         </div>

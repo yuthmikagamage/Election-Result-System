@@ -228,6 +228,8 @@ body {
   height: 80vh;
   background: linear-gradient(135deg, #282877 20%, #344985 100%);
   position: relative;
+  border-radius: 10px;
+  padding: 20px;
 }
 .client .districtSummery {
   display: flex;
