@@ -188,8 +188,7 @@ body {
 .client .latest {
   width: 400px;
   height: 200px;
-  background-color: rgb(151, 183, 218);
-  font-size: 20px;
+  background: #7d8a78;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -200,12 +199,12 @@ body {
   font-weight: bolder;
 }
 .client .latest:hover {
-  background-color: rgb(150, 176, 206);
+  background: #8da284;
 }
 .client .latest h4 {
   margin: 5px 0;
   font-size: 18px;
-  color: #4f3f07;
+  color: #ffffff;
 }
 .client .total {
   background-color: rgb(90, 62, 10);
@@ -218,4 +217,9 @@ body {
   font-size: 18px;
   font-weight: bolder;
   color: #ffffff;
+  font-family: sans-serif;
+  cursor: pointer;
+}
+.client .total:hover {
+  background-color: rgb(102, 68, 5);
 }
