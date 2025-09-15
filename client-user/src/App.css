@@ -179,3 +179,43 @@ body {
   color: white;
   margin-left: 10px;
 }
+.client .upperSummery {
+  display: flex;
+  justify-content: center;
+  gap: 45px;
+  margin-bottom: 30px;
+}
+.client .latest {
+  width: 400px;
+  height: 200px;
+  background-color: rgb(151, 183, 218);
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: sans-serif;
+  font-weight: bolder;
+}
+.client .latest:hover {
+  background-color: rgb(150, 176, 206);
+}
+.client .latest h4 {
+  margin: 5px 0;
+  font-size: 18px;
+  color: #4f3f07;
+}
+.client .total {
+  background-color: rgb(90, 62, 10);
+  width: 400px;
+  height: 200px;
+  display: flex;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bolder;
+  color: #ffffff;
+}

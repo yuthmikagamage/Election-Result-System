@@ -49,6 +49,15 @@ function App() {
           {!seeDetails && (
             <div>
               <h1>Presidential Election Results</h1>
+              <div className="upperSummery">
+                <div className="latest" onClick={() => selectItem(0)}>
+                  <h4>Latest Result</h4>
+                  <h4>
+                    {everyResult[0].ed_name + " - " + everyResult[0].pd_name}
+                  </h4>
+                </div>
+                <div className="total">District Summery</div>
+              </div>
               <div className="items">
                 {everyResult.map((result, key) => (
                   <button
