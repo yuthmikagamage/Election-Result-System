@@ -12,7 +12,7 @@ body {
 }
 
 .client .resultButton {
-  width: 90vw;
+  width: 845px;
   padding: 15px 0px 15px 0px;
   cursor: pointer;
   font-size: 15px;
@@ -222,4 +222,36 @@ body {
 }
 .client .total:hover {
   background-color: rgb(102, 68, 5);
+}
+.client .districtSummery .container {
+  width: 80vw;
+  height: 80vh;
+  background: linear-gradient(135deg, #282877 20%, #344985 100%);
+  position: relative;
+}
+.client .districtSummery {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+}
+.client .districtSummery .container .closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 20px;
+  width: 28px;
+  height: 28px;
+  background-color: rgb(206, 74, 30);
+  color: white;
+  border: none;
+  font-weight: bolder;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.client .districtSummery .container .closeButton:hover {
+  opacity: 1;
 }
