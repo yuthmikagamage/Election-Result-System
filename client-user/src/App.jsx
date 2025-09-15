@@ -6,8 +6,10 @@ function App() {
   const [everyResult, setEveryResult] = useState([]);
   const [seeDetails, setSeeDetails] = useState(false);
   const [currentSelected, setCurrentSelected] = useState(null);
-  const [resultsAvailable, setResultsAvailable] = useState(false);
   const [viewSummery, setViewSummery] = useState(false);
+  const [districtSummaryData, setDistrictSummaryData] = useState([]);
+  const [showResultofDistrict, setShowResultofDistrict] = useState(false);
+  const currentDistrict = useRef(null);
 
   useEffect(() => {
     if (socket.current) {
@@ -23,13 +25,9 @@ function App() {
       if (data.type === "all-results") {
         console.log(data.results.length + " previous results loaded ");
         setEveryResult(data.results);
-        if (data.results.length > 0) {
-          setResultsAvailable(true);
-        }
       } else if (data.type === "new-result") {
         console.log("New election result received -", data.result.reference);
         setEveryResult((prev) => [data.result, ...prev]);
-        setResultsAvailable(true);
       }
     });
   }, []);
@@ -37,6 +35,20 @@ function App() {
   function selectItem(item) {
     setSeeDetails(true);
     setCurrentSelected(item);
+  }
+
+  function showSummery() {
+    let districtViseResults = Array.from({ length: 22 }, () => []);
+    for (let i = 0; i < everyResult.length; i++) {
+      districtViseResults[everyResult[i].ed_code - 1].push(everyResult[i]);
+    }
+
+    const filteredSummary = districtViseResults.filter(
+      (districtArray) => districtArray.length > 0
+    );
+
+    setDistrictSummaryData(filteredSummary);
+    setViewSummery(true);
   }
 
   return (
@@ -51,16 +63,50 @@ function App() {
             >
               X
             </button>
+            <h2>Result released districts</h2>
+            {!showResultofDistrict && (
+              <div className="buttons">
+                {districtSummaryData.map((district, index) => (
+                  <button
+                    key={index}
+                    className="districtButtons"
+                    onClick={() => {
+                      currentDistrict.current = district;
+                      setShowResultofDistrict(true);
+                    }}
+                  >
+                    {district[0].ed_name}
+                  </button>
+                ))}
+              </div>
+            )}
+            {showResultofDistrict && (
+              <div className="resultByDistrict">
+                <button
+                  className="backButton"
+                  onClick={() => setShowResultofDistrict(false)}
+                >
+                  ⬅
+                </button>
+                <div className="resultByDistrictButtons">
+                  {currentDistrict.current.map((item, index) => (
+                    <button key={index} className="pdButton">
+                      {item.ed_name} - {item.pd_name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
       {!viewSummery && (
         <div className="startPage">
-          {!resultsAvailable && (
+          {everyResult.length == 0 && (
             <div className="noResults">No Results Available !</div>
           )}
 
-          {resultsAvailable && (
+          {everyResult.length > 0 && (
             <div>
               {!seeDetails && (
                 <div>
@@ -74,7 +120,7 @@ function App() {
                           everyResult[0].pd_name}
                       </h4>
                     </div>
-                    <div className="total" onClick={() => setViewSummery(true)}>
+                    <div className="total" onClick={showSummery}>
                       District Summery
                     </div>
                   </div>

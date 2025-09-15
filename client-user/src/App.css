@@ -255,3 +255,49 @@ body {
 .client .districtSummery .container .closeButton:hover {
   opacity: 1;
 }
+.districtSummery .container h2 {
+  color: white;
+  text-align: center;
+  font-family: sans-serif;
+}
+.districtSummery .buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+.districtSummery .buttons .districtButtons,
+.pdButton {
+  padding: 10px 0px 10px 0px;
+  margin: 0px 10px 0px 10px;
+  color: white;
+  background: linear-gradient(135deg, #6f6fd1 20%, #2f5ad0 100%);
+  border: none;
+  font-size: 20px;
+  border-radius: 5px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+.districtSummery .buttons .districtButtons:hover,
+.pdButton:hover,
+.resultByDistrict .backButton:hover {
+  opacity: 1;
+}
+.resultByDistrict .backButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 5px 8px 5px 8px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+.resultByDistrictButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
