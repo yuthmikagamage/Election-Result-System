@@ -106,6 +106,150 @@ function App() {
     );
   }
 
+  function districtTotal() {
+    const currentResult = currentDistrict.current;
+    let totalElectors = 0;
+    let totalValidVotes = 0;
+    let totalPolled = 0;
+    let totalRejected = 0;
+    let firstFiveCandidates = [];
+    const candidateVoteTotals = {};
+    const candidateDistrictVoteTotals = {};
+
+    let DistrictResultAvailable = false;
+
+    let totalDistrictElectors = 0;
+    let totalDistrictValidVotes = 0;
+    let totalDistrictPolled = 0;
+    let totalDistrictRejected = 0;
+
+    for (let i = 0; i < currentResult.length; i++) {
+      const level = currentResult[i].level?.toUpperCase().trim();
+
+      if (level === "ELECTORAL-DISTRICT") {
+        DistrictResultAvailable = true;
+        totalDistrictElectors += currentResult[i].summary.electors;
+        totalDistrictValidVotes += currentResult[i].summary.valid;
+        totalDistrictPolled += currentResult[i].summary.polled;
+        totalDistrictRejected += currentResult[i].summary.rejected;
+        currentResult[i].by_party.forEach((party) => {
+          const candidateName = party.candidate;
+          if (candidateDistrictVoteTotals[candidateName]) {
+            candidateDistrictVoteTotals[candidateName] += party.votes;
+          } else {
+            candidateDistrictVoteTotals[candidateName] = party.votes;
+          }
+        });
+      } else if (level === "POLLING-DIVISION") {
+        totalElectors += currentResult[i].summary.electors;
+        totalValidVotes += currentResult[i].summary.valid;
+        totalPolled += currentResult[i].summary.polled;
+        totalRejected += currentResult[i].summary.rejected;
+
+        currentResult[i].by_party.forEach((party) => {
+          const candidateName = party.candidate;
+          if (candidateVoteTotals[candidateName]) {
+            candidateVoteTotals[candidateName] += party.votes;
+          } else {
+            candidateVoteTotals[candidateName] = party.votes;
+          }
+        });
+      } else if (level === "POSTAL-VOTE") {
+        totalElectors += currentResult[i].summary.electors;
+        totalValidVotes += currentResult[i].summary.valid;
+        totalPolled += currentResult[i].summary.polled;
+        totalRejected += currentResult[i].summary.rejected;
+
+        totalDistrictElectors += currentResult[i].summary.electors;
+        totalDistrictValidVotes += currentResult[i].summary.valid;
+        totalDistrictPolled += currentResult[i].summary.polled;
+        totalDistrictRejected += currentResult[i].summary.rejected;
+
+        currentResult[i].by_party.forEach((party) => {
+          const candidateName = party.candidate;
+          if (candidateVoteTotals[candidateName]) {
+            candidateVoteTotals[candidateName] += party.votes;
+          } else {
+            candidateVoteTotals[candidateName] = party.votes;
+          }
+        });
+
+        currentResult[i].by_party.forEach((party) => {
+          const candidateName = party.candidate;
+          if (candidateDistrictVoteTotals[candidateName]) {
+            candidateDistrictVoteTotals[candidateName] += party.votes;
+          } else {
+            candidateDistrictVoteTotals[candidateName] = party.votes;
+          }
+        });
+      } else {
+        console.log("Unknown level:", level);
+      }
+
+      const sortedCandidates = Object.entries(
+        DistrictResultAvailable
+          ? candidateDistrictVoteTotals
+          : candidateVoteTotals
+      )
+        .map(([candidateName, votes]) => ({
+          candidateName: candidateName,
+          votes: votes,
+        }))
+        .sort((a, b) => b.votes - a.votes);
+      firstFiveCandidates = sortedCandidates.slice(0, 5);
+    }
+    return (
+      <div className="districtTotal">
+        <div className="summarySection">
+          <div className="summaryStats">
+            <div className="stat">
+              <span className="label">Total Electors:</span>
+              <span className="value">
+                {DistrictResultAvailable
+                  ? totalDistrictElectors
+                  : totalElectors}
+              </span>
+            </div>
+            <div className="stat">
+              <span className="label">Polled:</span>
+              <span className="value">
+                {DistrictResultAvailable ? totalDistrictPolled : totalPolled}
+              </span>
+            </div>
+            <div className="stat">
+              <span className="label">Valid:</span>
+              <span className="value">
+                {DistrictResultAvailable
+                  ? totalDistrictValidVotes
+                  : totalValidVotes}
+              </span>
+            </div>
+            <div className="stat">
+              <span className="label">Rejected:</span>
+              <span className="value">
+                {DistrictResultAvailable
+                  ? totalDistrictRejected
+                  : totalRejected}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="candidatesSection">
+          <h3>Results by Candidate :</h3>
+          <div className="candidatesList">
+            {firstFiveCandidates.map((candidate, key) => (
+              <div key={key} className="candidateItem">
+                <div className="candidateParty">{candidate.candidateName}</div>
+                <div className="candidateVotes">{candidate.votes}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <h2 className="availableResultText">Result Available Districts!</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="client">
       {viewSummery && (
@@ -118,48 +262,57 @@ function App() {
             >
               X
             </button>
-            <h2>Result released districts</h2>
             {!showResultofDistrict && (
-              <div className="buttons">
-                {districtSummaryData.map((district, index) => (
-                  <button
-                    key={index}
-                    className="districtButtons"
-                    onClick={() => {
-                      currentDistrict.current = district;
-                      setShowResultofDistrict(true);
-                    }}
-                  >
-                    {district[0].ed_name}
-                  </button>
-                ))}
+              <div className="wrapper">
+                <h2>Result available districts!</h2>
+                <div className="buttons">
+                  {districtSummaryData.map((district, index) => (
+                    <button
+                      key={index}
+                      className="districtButtons"
+                      onClick={() => {
+                        currentDistrict.current = district;
+                        console.log(district);
+                        setShowResultofDistrict(true);
+                      }}
+                    >
+                      {district[0].ed_name}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             {showResultofDistrict && (
-              <div className="resultByDistrict">
-                <button
-                  className="backButton"
-                  onClick={() => setShowResultofDistrict(false)}
-                >
-                  ⬅
-                </button>
-                {!seeDetails && (
-                  <div className="resultByDistrictButtons">
-                    {currentDistrict.current.map((item, index) => (
-                      <button
-                        key={index}
-                        className="pdButton"
-                        onClick={() => {
-                          setSeeDetails(true);
-                          selectedDistrictItem.current = item;
-                        }}
-                      >
-                        {item.ed_name} - {item.pd_name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {seeDetails && detailedResult(selectedDistrictItem.current)}
+              <div className="wrapper">
+                <h2>{currentDistrict.current[0].ed_name} District</h2>
+                <div className="resultByDistrict">
+                  <button
+                    className="backButton"
+                    onClick={() => setShowResultofDistrict(false)}
+                  >
+                    ⬅
+                  </button>
+
+                  {districtTotal()}
+
+                  {!seeDetails && (
+                    <div className="resultByDistrictButtons">
+                      {currentDistrict.current.map((item, index) => (
+                        <button
+                          key={index}
+                          className="pdButton"
+                          onClick={() => {
+                            setSeeDetails(true);
+                            selectedDistrictItem.current = item;
+                          }}
+                        >
+                          {item.ed_name} - {item.pd_name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {seeDetails && detailedResult(selectedDistrictItem.current)}
+                </div>
               </div>
             )}
           </div>
