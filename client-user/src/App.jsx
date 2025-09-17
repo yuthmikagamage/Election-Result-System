@@ -123,65 +123,48 @@ function App() {
     let totalDistrictPolled = 0;
     let totalDistrictRejected = 0;
 
+    function calulateWithoutED(eachResult) {
+      totalElectors += eachResult.summary.electors;
+      totalValidVotes += eachResult.summary.valid;
+      totalPolled += eachResult.summary.polled;
+      totalRejected += eachResult.summary.rejected;
+
+      eachResult.by_party.forEach((party) => {
+        const candidateName = party.candidate;
+        if (candidateVoteTotals[candidateName]) {
+          candidateVoteTotals[candidateName] += party.votes;
+        } else {
+          candidateVoteTotals[candidateName] = party.votes;
+        }
+      });
+    }
+
+    function calulateWithED(eachResult) {
+      totalDistrictElectors += eachResult.summary.electors;
+      totalDistrictValidVotes += eachResult.summary.valid;
+      totalDistrictPolled += eachResult.summary.polled;
+      totalDistrictRejected += eachResult.summary.rejected;
+      eachResult.by_party.forEach((party) => {
+        const candidateName = party.candidate;
+        if (candidateDistrictVoteTotals[candidateName]) {
+          candidateDistrictVoteTotals[candidateName] += party.votes;
+        } else {
+          candidateDistrictVoteTotals[candidateName] = party.votes;
+        }
+      });
+    }
+
     for (let i = 0; i < currentResult.length; i++) {
       const level = currentResult[i].level?.toUpperCase().trim();
 
       if (level === "ELECTORAL-DISTRICT") {
         DistrictResultAvailable = true;
-        totalDistrictElectors += currentResult[i].summary.electors;
-        totalDistrictValidVotes += currentResult[i].summary.valid;
-        totalDistrictPolled += currentResult[i].summary.polled;
-        totalDistrictRejected += currentResult[i].summary.rejected;
-        currentResult[i].by_party.forEach((party) => {
-          const candidateName = party.candidate;
-          if (candidateDistrictVoteTotals[candidateName]) {
-            candidateDistrictVoteTotals[candidateName] += party.votes;
-          } else {
-            candidateDistrictVoteTotals[candidateName] = party.votes;
-          }
-        });
+        calulateWithED(currentResult[i]);
       } else if (level === "POLLING-DIVISION") {
-        totalElectors += currentResult[i].summary.electors;
-        totalValidVotes += currentResult[i].summary.valid;
-        totalPolled += currentResult[i].summary.polled;
-        totalRejected += currentResult[i].summary.rejected;
-
-        currentResult[i].by_party.forEach((party) => {
-          const candidateName = party.candidate;
-          if (candidateVoteTotals[candidateName]) {
-            candidateVoteTotals[candidateName] += party.votes;
-          } else {
-            candidateVoteTotals[candidateName] = party.votes;
-          }
-        });
+        calulateWithoutED(currentResult[i]);
       } else if (level === "POSTAL-VOTE") {
-        totalElectors += currentResult[i].summary.electors;
-        totalValidVotes += currentResult[i].summary.valid;
-        totalPolled += currentResult[i].summary.polled;
-        totalRejected += currentResult[i].summary.rejected;
-
-        totalDistrictElectors += currentResult[i].summary.electors;
-        totalDistrictValidVotes += currentResult[i].summary.valid;
-        totalDistrictPolled += currentResult[i].summary.polled;
-        totalDistrictRejected += currentResult[i].summary.rejected;
-
-        currentResult[i].by_party.forEach((party) => {
-          const candidateName = party.candidate;
-          if (candidateVoteTotals[candidateName]) {
-            candidateVoteTotals[candidateName] += party.votes;
-          } else {
-            candidateVoteTotals[candidateName] = party.votes;
-          }
-        });
-
-        currentResult[i].by_party.forEach((party) => {
-          const candidateName = party.candidate;
-          if (candidateDistrictVoteTotals[candidateName]) {
-            candidateDistrictVoteTotals[candidateName] += party.votes;
-          } else {
-            candidateDistrictVoteTotals[candidateName] = party.votes;
-          }
-        });
+        calulateWithoutED(currentResult[i]);
+        calulateWithED(currentResult[i]);
       } else {
         console.log("Unknown level:", level);
       }
