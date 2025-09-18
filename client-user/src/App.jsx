@@ -140,10 +140,10 @@ function App() {
     }
 
     function calulateWithED(eachResult) {
-      totalDistrictElectors += eachResult.summary.electors;
-      totalDistrictValidVotes += eachResult.summary.valid;
-      totalDistrictPolled += eachResult.summary.polled;
-      totalDistrictRejected += eachResult.summary.rejected;
+      totalDistrictElectors = eachResult.summary.electors;
+      totalDistrictValidVotes = eachResult.summary.valid;
+      totalDistrictPolled = eachResult.summary.polled;
+      totalDistrictRejected = eachResult.summary.rejected;
       eachResult.by_party.forEach((party) => {
         const candidateName = party.candidate;
         if (candidateDistrictVoteTotals[candidateName]) {
@@ -161,10 +161,13 @@ function App() {
         DistrictResultAvailable = true;
         calulateWithED(currentResult[i]);
       } else if (level === "POLLING-DIVISION") {
-        calulateWithoutED(currentResult[i]);
+        if (!DistrictResultAvailable) {
+          calulateWithoutED(currentResult[i]);
+        }
       } else if (level === "POSTAL-VOTE") {
-        calulateWithoutED(currentResult[i]);
-        calulateWithED(currentResult[i]);
+        if (!DistrictResultAvailable) {
+          calulateWithoutED(currentResult[i]);
+        }
       } else {
         console.log("Unknown level:", level);
       }
