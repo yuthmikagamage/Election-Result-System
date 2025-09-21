@@ -52,6 +52,59 @@ function App() {
     setViewSummery(true);
   }
 
+  function getIslandTopCandidates() {
+    let districtViseResults = Array.from({ length: 22 }, () => []);
+    for (let i = 0; i < everyResult.length; i++) {
+      districtViseResults[everyResult[i].ed_code - 1].push(everyResult[i]);
+    }
+
+    const candidateIslandTotals = {};
+
+    districtViseResults.forEach((district) => {
+      if (district.length > 0) {
+        let districtHasEDResult = false;
+        const candidateDistrictTotals = {};
+
+        district.forEach((result) => {
+          const level = result.level?.toUpperCase().trim();
+
+          if (level === "ELECTORAL-DISTRICT") {
+            districtHasEDResult = true;
+            result.by_party.forEach((party) => {
+              candidateDistrictTotals[party.candidate] = party.votes;
+            });
+          } else if (
+            !districtHasEDResult &&
+            (level === "POLLING-DIVISION" || level === "POSTAL-VOTE")
+          ) {
+            result.by_party.forEach((party) => {
+              if (candidateDistrictTotals[party.candidate]) {
+                candidateDistrictTotals[party.candidate] += party.votes;
+              } else {
+                candidateDistrictTotals[party.candidate] = party.votes;
+              }
+            });
+          }
+        });
+
+        Object.entries(candidateDistrictTotals).forEach(
+          ([candidate, votes]) => {
+            if (candidateIslandTotals[candidate]) {
+              candidateIslandTotals[candidate] += votes;
+            } else {
+              candidateIslandTotals[candidate] = votes;
+            }
+          }
+        );
+      }
+    });
+
+    return Object.entries(candidateIslandTotals)
+      .map(([candidate, votes]) => ({ candidate, votes }))
+      .sort((a, b) => b.votes - a.votes)
+      .slice(0, 5);
+  }
+
   function detailedResult(result) {
     return (
       <div className="detailsPopUp">
@@ -327,6 +380,22 @@ function App() {
                     <div className="total" onClick={showSummery}>
                       District Summery
                     </div>
+                  </div>
+                  <h2 className="topCandidates">Top Candidates</h2>
+                  <div className="islandTopCandidates">
+                    {getIslandTopCandidates().map((candidate, index) => (
+                      <div key={index} className="topCandidateItem">
+                        <div className="candidateRank">{index + 1}</div>
+                        <div className="candidateDetails">
+                          <div className="candidateName">
+                            {candidate.candidate}
+                          </div>
+                          <div className="candidateVotes">
+                            {candidate.votes.toLocaleString()} votes
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   <div className="items">
                     {everyResult.map((result, key) => (

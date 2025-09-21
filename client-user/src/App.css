@@ -319,3 +319,72 @@ body {
 .districtTotal {
   margin-top: 50px;
 }
+.topCandidates {
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+.islandTopCandidates {
+  max-width: 845px;
+  margin: 0 auto 30px auto;
+  padding: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.topCandidateItem {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  border-radius: 12px;
+  border-left: 4px solid #4c6ef5;
+  transition: all 0.3s ease;
+}
+
+.topCandidateItem:last-child {
+  margin-bottom: 0;
+}
+
+.candidateRank {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4c6ef5;
+  min-width: 50px;
+  text-align: center;
+  margin-right: 20px;
+}
+
+.candidateDetails {
+  flex: 1;
+}
+
+.candidateDetails .candidateName {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 5px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.candidateDetails .candidateVotes {
+  font-size: 16px;
+  color: #ffd43b;
+  font-weight: 600;
+}
+
+.topCandidateItem .candidateRank {
+  color: #ffd700;
+}
