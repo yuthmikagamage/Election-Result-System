@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import candidateData from "./candidateData.json";
 
 function App() {
   const socket = useRef(null);
@@ -11,6 +12,18 @@ function App() {
   const [showResultofDistrict, setShowResultofDistrict] = useState(false);
   const currentDistrict = useRef(null);
   const selectedDistrictItem = useRef(null);
+
+  const getCandidateColor = (candidateId) => {
+    const candidate = candidateData.find((c) => c.id === candidateId);
+    return candidate
+      ? candidate.party.color
+      : ["rgb(106, 106, 106)", "rgb(28, 28, 28)"];
+  };
+
+  const getCandidateName = (candidateId) => {
+    const candidate = candidateData.find((c) => c.id === candidateId);
+    return candidate ? candidate.name.en : "Unknown Candidate";
+  };
 
   useEffect(() => {
     if (socket.current) {
@@ -71,28 +84,28 @@ function App() {
           if (level === "ELECTORAL-DISTRICT") {
             districtHasEDResult = true;
             result.by_party.forEach((party) => {
-              candidateDistrictTotals[party.candidate] = party.votes;
+              candidateDistrictTotals[party.party_code] = party.votes;
             });
           } else if (
             !districtHasEDResult &&
             (level === "POLLING-DIVISION" || level === "POSTAL-VOTE")
           ) {
             result.by_party.forEach((party) => {
-              if (candidateDistrictTotals[party.candidate]) {
-                candidateDistrictTotals[party.candidate] += party.votes;
+              if (candidateDistrictTotals[party.party_code]) {
+                candidateDistrictTotals[party.party_code] += party.votes;
               } else {
-                candidateDistrictTotals[party.candidate] = party.votes;
+                candidateDistrictTotals[party.party_code] = party.votes;
               }
             });
           }
         });
 
         Object.entries(candidateDistrictTotals).forEach(
-          ([candidate, votes]) => {
-            if (candidateIslandTotals[candidate]) {
-              candidateIslandTotals[candidate] += votes;
+          ([candidateId, votes]) => {
+            if (candidateIslandTotals[candidateId]) {
+              candidateIslandTotals[candidateId] += votes;
             } else {
-              candidateIslandTotals[candidate] = votes;
+              candidateIslandTotals[candidateId] = votes;
             }
           }
         );
@@ -100,7 +113,7 @@ function App() {
     });
 
     return Object.entries(candidateIslandTotals)
-      .map(([candidate, votes]) => ({ candidate, votes }))
+      .map(([candidateId, votes]) => ({ candidateId, votes }))
       .sort((a, b) => b.votes - a.votes)
       .slice(0, 5);
   }
@@ -143,15 +156,27 @@ function App() {
             <div className="candidatesList">
               {result.by_party
                 .sort((a, b) => b.votes - a.votes)
-                .map((party, key) => (
-                  <div key={key} className="candidateItem">
-                    <div className="candidateName">{party.candidate}</div>
-                    <div className="candidateParty">{party.party_name}</div>
-                    <div className="candidateVotes">
-                      {party.votes} votes ({party.percentage})
+                .map((party, key) => {
+                  const colors = getCandidateColor(party.party_code);
+                  const gradient =
+                    colors.length > 1
+                      ? `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`
+                      : colors[0];
+
+                  return (
+                    <div
+                      key={key}
+                      className="candidateItem"
+                      style={{ background: gradient }}
+                    >
+                      <div className="candidateName">{party.candidate}</div>
+                      <div className="candidateParty">{party.party_name}</div>
+                      <div className="candidateVotes">
+                        {party.votes} votes ({party.percentage})
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -183,11 +208,11 @@ function App() {
       totalRejected += eachResult.summary.rejected;
 
       eachResult.by_party.forEach((party) => {
-        const candidateName = party.candidate;
-        if (candidateVoteTotals[candidateName]) {
-          candidateVoteTotals[candidateName] += party.votes;
+        const candidateId = party.party_code;
+        if (candidateVoteTotals[candidateId]) {
+          candidateVoteTotals[candidateId] += party.votes;
         } else {
-          candidateVoteTotals[candidateName] = party.votes;
+          candidateVoteTotals[candidateId] = party.votes;
         }
       });
     }
@@ -198,11 +223,11 @@ function App() {
       totalDistrictPolled = eachResult.summary.polled;
       totalDistrictRejected = eachResult.summary.rejected;
       eachResult.by_party.forEach((party) => {
-        const candidateName = party.candidate;
-        if (candidateDistrictVoteTotals[candidateName]) {
-          candidateDistrictVoteTotals[candidateName] += party.votes;
+        const candidateId = party.party_code;
+        if (candidateDistrictVoteTotals[candidateId]) {
+          candidateDistrictVoteTotals[candidateId] += party.votes;
         } else {
-          candidateDistrictVoteTotals[candidateName] = party.votes;
+          candidateDistrictVoteTotals[candidateId] = party.votes;
         }
       });
     }
@@ -230,8 +255,8 @@ function App() {
           ? candidateDistrictVoteTotals
           : candidateVoteTotals
       )
-        .map(([candidateName, votes]) => ({
-          candidateName: candidateName,
+        .map(([candidateId, votes]) => ({
+          candidateId: candidateId,
           votes: votes,
         }))
         .sort((a, b) => b.votes - a.votes);
@@ -276,12 +301,26 @@ function App() {
         <div className="candidatesSection">
           <h3>Results by Candidate :</h3>
           <div className="candidatesList">
-            {firstFiveCandidates.map((candidate, key) => (
-              <div key={key} className="candidateItem">
-                <div className="candidateParty">{candidate.candidateName}</div>
-                <div className="candidateVotes">{candidate.votes}</div>
-              </div>
-            ))}
+            {firstFiveCandidates.map((candidate, key) => {
+              const colors = getCandidateColor(candidate.candidateId);
+              const gradient =
+                colors.length > 1
+                  ? `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`
+                  : colors[0];
+
+              return (
+                <div
+                  key={key}
+                  className="candidateItem"
+                  style={{ background: gradient }}
+                >
+                  <div className="candidateParty">
+                    {getCandidateName(candidate.candidateId)}
+                  </div>
+                  <div className="candidateVotes">{candidate.votes}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
         <h2 className="availableResultText">Result Available Districts!</h2>
@@ -381,21 +420,33 @@ function App() {
                       District Summery
                     </div>
                   </div>
-                  <h2 className="topCandidates">Top Candidates</h2>
+                  <h2 className="topCandidates">Island Total</h2>
                   <div className="islandTopCandidates">
-                    {getIslandTopCandidates().map((candidate, index) => (
-                      <div key={index} className="topCandidateItem">
-                        <div className="candidateRank">{index + 1}</div>
-                        <div className="candidateDetails">
-                          <div className="candidateName">
-                            {candidate.candidate}
-                          </div>
-                          <div className="candidateVotes">
-                            {candidate.votes.toLocaleString()} votes
+                    {getIslandTopCandidates().map((candidate, index) => {
+                      const colors = getCandidateColor(candidate.candidateId);
+                      const gradient =
+                        colors.length > 1
+                          ? `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`
+                          : colors[0];
+
+                      return (
+                        <div
+                          key={index}
+                          className="topCandidateItem"
+                          style={{ background: gradient }}
+                        >
+                          <div className="candidateRank">{index + 1}</div>
+                          <div className="candidateDetails">
+                            <div className="candidateName">
+                              {getCandidateName(candidate.candidateId)}
+                            </div>
+                            <div className="candidateVotes">
+                              {candidate.votes.toLocaleString()} votes
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="items">
                     {everyResult.map((result, key) => (
