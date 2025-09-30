@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   const socket = useRef(null);
-  const [newFile, setNewFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [serverMessage, setServerMessage] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -24,25 +24,44 @@ function App() {
     });
   }, []);
 
-  function uploadFile() {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const fileContent = reader.result;
-      const prasedData = JSON.parse(fileContent);
-      const reference = prasedData.reference;
-      socket.current.send(
-        JSON.stringify({
-          type: "new-result",
-          jsonFile: fileContent,
-          reference: reference,
-        })
-      );
-      setNewFile(null);
-      fileInputRef.current.value = null;
-    };
-    if (newFile) {
-      reader.readAsText(newFile);
+  async function uploadFiles() {
+    if (selectedFiles.length === 0) return;
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+
+      try {
+        const fileContent = await readFileAsText(file);
+        const parsedData = JSON.parse(fileContent);
+        const reference = parsedData.reference;
+
+        socket.current.send(
+          JSON.stringify({
+            type: "new-result",
+            jsonFile: fileContent,
+            reference: reference,
+          })
+        );
+
+        if (i < selectedFiles.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      } catch (error) {
+        console.error(`Error uploading ${file.name}:`, error);
+      }
     }
+
+    setSelectedFiles([]);
+    fileInputRef.current.value = null;
+  }
+
+  function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
   }
 
   return (
@@ -52,12 +71,13 @@ function App() {
         <input
           type="file"
           accept="application/json"
+          multiple
           ref={fileInputRef}
-          onChange={(event) => setNewFile(event.target.files[0])}
+          onChange={(event) => setSelectedFiles(Array.from(event.target.files))}
           onClick={() => setServerMessage(null)}
-        ></input>
-        <button onClick={uploadFile} disabled={!newFile}>
-          Upload
+        />
+        <button onClick={uploadFiles} disabled={selectedFiles.length === 0}>
+          Upload {selectedFiles.length > 0 && `(${selectedFiles.length})`}
         </button>
       </div>
       {serverMessage && <h4 className="serverMessage">{serverMessage}</h4>}

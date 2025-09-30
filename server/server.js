@@ -1,12 +1,12 @@
 const ws = require("ws");
 const server = new ws.Server({ port: 3002 });
-
 const AllResults = [];
 const resultsReferences = [];
 
 server.on("connection", (client) => {
   client.on("message", (message) => {
     const data = JSON.parse(message);
+
     if (data.type === "Admin-Connection") {
       console.log(data.type);
     } else if (data.type === "EndUser-Connection") {
@@ -18,6 +18,7 @@ server.on("connection", (client) => {
         })
       );
     }
+
     if (data.type === "new-result") {
       let newResult = data.jsonFile;
       if (resultsReferences.includes(data.reference)) {
@@ -44,10 +45,12 @@ server.on("connection", (client) => {
         client.send(
           JSON.stringify({
             type: "server-message",
-            msg: "Result added to the system suessfully!",
+            msg: "Result added to the system successfully!",
           })
         );
       }
     }
   });
 });
+
+console.log("Server running on port 3002");
