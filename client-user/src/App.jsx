@@ -25,6 +25,14 @@ function App() {
     return candidate ? candidate.name.en : "Unknown Candidate";
   };
 
+  const getCandidateLogo = (partyCode) => {
+    try {
+      return `/${partyCode}.png`;
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (socket.current) {
       return;
@@ -169,10 +177,18 @@ function App() {
                       className="candidateItem"
                       style={{ background: gradient }}
                     >
-                      <div className="candidateName">{party.candidate}</div>
-                      <div className="candidateParty">{party.party_name}</div>
-                      <div className="candidateVotes">
-                        {party.votes} votes ({party.percentage})
+                      <img
+                        src={getCandidateLogo(party.party_code)}
+                        alt={party.candidate}
+                        className="candidateLogo"
+                        onError={(e) => (e.target.style.display = "none")}
+                      />
+                      <div className="candidateInfo">
+                        <div className="candidateName">{party.candidate}</div>
+                        <div className="candidateParty">{party.party_name}</div>
+                        <div className="candidateVotes">
+                          {party.votes} votes ({party.percentage})
+                        </div>
                       </div>
                     </div>
                   );
@@ -314,10 +330,18 @@ function App() {
                   className="candidateItem"
                   style={{ background: gradient }}
                 >
-                  <div className="candidateParty">
-                    {getCandidateName(candidate.candidateId)}
+                  <img
+                    src={getCandidateLogo(candidate.candidateId)}
+                    alt={getCandidateName(candidate.candidateId)}
+                    className="candidateLogo"
+                    onError={(e) => (e.target.style.display = "none")}
+                  />
+                  <div className="candidateInfo">
+                    <div className="candidateParty">
+                      {getCandidateName(candidate.candidateId)}
+                    </div>
+                    <div className="candidateVotes">{candidate.votes}</div>
                   </div>
-                  <div className="candidateVotes">{candidate.votes}</div>
                 </div>
               );
             })}
@@ -436,6 +460,12 @@ function App() {
                           style={{ background: gradient }}
                         >
                           <div className="candidateRank">{index + 1}</div>
+                          <img
+                            src={getCandidateLogo(candidate.candidateId)}
+                            alt={getCandidateName(candidate.candidateId)}
+                            className="topCandidateLogo"
+                            onError={(e) => (e.target.style.display = "none")}
+                          />
                           <div className="candidateDetails">
                             <div className="candidateName">
                               {getCandidateName(candidate.candidateId)}
