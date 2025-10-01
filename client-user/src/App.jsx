@@ -27,7 +27,7 @@ function App() {
 
   const getCandidateLogo = (partyCode) => {
     try {
-      return `/${partyCode}.png`;
+      return `logos/${partyCode}.png`;
     } catch {
       return null;
     }
